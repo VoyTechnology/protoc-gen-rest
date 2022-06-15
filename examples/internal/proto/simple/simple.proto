@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package simple;
+
+option go_package = "github.com/voytechnology/protoc-gen-rest/examples/internal/proto/simple;simple";
+
+import "google/api/annotations.proto";
+
+// SimpleService returns the n-th letter of the alphabet.
+service SimpleService {
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/simple/n"
+    };
+  }
+}
+
+message GetRequest {
+    string n = 1;
+}
+
+message GetResponse {
+    string letter = 1;
+}

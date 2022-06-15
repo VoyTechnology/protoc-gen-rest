@@ -14,6 +14,42 @@
 
 package main
 
+import (
+	"flag"
+	"os"
+
+	"github.com/voytechnology/protoc-gen-rest/internal/descriptor"
+	"google.golang.org/protobuf/compiler/protogen"
+
+	"github.com/voytechnology/protoc-gen-rest/internal/generator"
+)
+
 func main() {
-	// TODO
+	protogen.Options{
+		ParamFunc: flag.CommandLine.Set,
+	}.Run(func(gen *protogen.Plugin) error {
+		generator := generator.New()
+
+		var sources []*descriptor.SourceFile
+		for _, fileName := range gen.Request.FileToGenerate {
+			sources = append(sources, &descriptor.SourceFile{
+				GeneratedFilenamePrefix: fileName,
+			})
+		}
+
+		targets, err := generator.Generate(sources)
+		if err != nil {
+			return err
+		}
+		for _, target := range targets {
+			f, err := os.Create(*target.Name)
+			if err != nil {
+				return err
+			}
+			if _, err := f.WriteString(*target.Content); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

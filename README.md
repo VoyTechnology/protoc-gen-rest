@@ -109,3 +109,13 @@ func main() {
 ## More Examples
 
 Coming soon
+
+## Developing
+
+There is no formalized process just yet, so for now just run
+
+```sh
+make local
+```
+
+And look at the generated files that the binary produces.
