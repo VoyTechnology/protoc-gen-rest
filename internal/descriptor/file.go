@@ -8,6 +8,7 @@ import (
 type SourceFile struct {
 	*descriptorpb.FileDescriptorProto
 
+	Package                 string
 	GeneratedFilenamePrefix string
 }
 

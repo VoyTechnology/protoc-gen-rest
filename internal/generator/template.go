@@ -24,11 +24,3 @@ type {{ .Name}}Server interface {
 {{ end }}
 {{ end }}
 `))
-
-// {{ range .Services }}
-// type {{ .Name}}Server interface {
-// 	{{ range .Methods }}
-// 	{{ .Name }}(ctx context.Context, req *{{ .RequestType }}) (*{{ .ResponseType }}, error)
-// 	{{ end }}
-//
-// {{ end }}

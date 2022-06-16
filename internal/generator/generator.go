@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"log"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"
@@ -57,6 +58,8 @@ func (g *generator) Generate(targets []*descriptor.SourceFile) ([]*descriptor.Ta
 }
 
 func (g *generator) generateFile(file *descriptor.SourceFile) (string, error) {
+	log.Printf("%+v", file.FileDescriptorProto.Options)
+
 	b := new(bytes.Buffer)
 	if err := tmpl.Execute(b, file); err != nil {
 		return "", err

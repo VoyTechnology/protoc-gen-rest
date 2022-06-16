@@ -30,6 +30,7 @@ func (r *Registry) Lookup(fileName string) (*descriptor.SourceFile, error) {
 
 	return &descriptor.SourceFile{
 		FileDescriptorProto:     file.Proto,
+		Package:                 string(file.GoPackageName),
 		GeneratedFilenamePrefix: filepath.Join(pathName, fileName),
 	}, nil
 }

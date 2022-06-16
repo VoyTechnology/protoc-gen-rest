@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package simple;
+package testdata.simple.v1;
 
-option go_package = "github.com/voytechnology/protoc-gen-rest/examples/internal/proto/simple;simple";
+option go_package = "github.com/voytechnology/protoc-gen-rest/testdata/simple/v1;simple";
 
 import "google/api/annotations.proto";
 
