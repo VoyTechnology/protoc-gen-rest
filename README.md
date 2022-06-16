@@ -42,11 +42,11 @@ service CapitalizeService {
     }
 }
 
-message Capitalize {
+message CapitalizeRequest {
     string message = 1;
 }
 
-message YourResponse {
+message CapitalizeResponse {
     string message = 1;
 }
 ```
@@ -67,9 +67,9 @@ deps:
 version: v1
 plugins:
     - name: go
-    out: proto
+      out: proto
     - name: protoc-gen-rest
-    out: proto
+      out: proto
 ```
 
 ### 3. Implement your service

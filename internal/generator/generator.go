@@ -15,6 +15,8 @@
 package generator
 
 import (
+	"bytes"
+	"fmt"
 	"go/format"
 
 	"google.golang.org/protobuf/proto"
@@ -37,9 +39,10 @@ func (g *generator) Generate(targets []*descriptor.SourceFile) ([]*descriptor.Ta
 		if err != nil {
 			return nil, err
 		}
+
 		formatted, err := format.Source([]byte(code))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error formatting generated code: %v", err)
 		}
 
 		files = append(files, &descriptor.TargetFile{
@@ -54,5 +57,11 @@ func (g *generator) Generate(targets []*descriptor.SourceFile) ([]*descriptor.Ta
 }
 
 func (g *generator) generateFile(file *descriptor.SourceFile) (string, error) {
-	return "package test", nil
+	b := new(bytes.Buffer)
+	if err := tmpl.Execute(b, file); err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
+
 }

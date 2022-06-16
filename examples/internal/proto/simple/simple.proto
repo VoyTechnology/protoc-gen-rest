@@ -13,6 +13,12 @@ service SimpleService {
       get: "/simple/n"
     };
   }
+
+  rpc Set(SetRequest) returns (SetResponse) {
+    option (google.api.http) = {
+      post: "/simple/n"
+    };
+  }
 }
 
 message GetRequest {
@@ -21,4 +27,12 @@ message GetRequest {
 
 message GetResponse {
     string letter = 1;
+}
+
+message SetRequest {
+    string n = 1;
+    string letter = 2;
+}
+
+message SetResponse {
 }
