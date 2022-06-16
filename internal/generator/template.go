@@ -12,15 +12,91 @@ package {{ .Package }}
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
+{{ range $service := .Services -}}
+
+{{- /* TODO: Add a flag to enable or disable service interface generation*/ -}}
 {{ if true }}
-{{ range .Service -}}
-type {{ .Name}}Server interface {
-	{{- range .Method }}
-	{{ .Name }}(ctx context.Context, req string) (string, error)
+
+type {{ $service.Name }}Server interface {
+	{{- range $ignore, $path := $service.Methods }}
+	{{- range $ignore, $method := $path }}
+		{{ $method.Name }}(ctx context.Context, req string) (string, error)
+	{{- end }}
 	{{- end }}
 }
 {{ end }}
-{{ end }}
+
+{{- /* Begin http.Handler implementation */}}
+
+type {{ $service.InternalName }}Handler struct {
+	server {{ $service.Name }}Server
+	// map of path to methods associated with individual handlers.
+	mapping map[string]map[string]http.HandlerFunc
+}
+
+func (h *{{ $service.InternalName }}Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if methods, ok := h.mapping[r.URL.Path]; ok {
+		if handler, ok := methods[r.Method]; ok {
+			handler(w, r)
+		} else {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+		return
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+	}	
+}
+
+func New{{ $service.Name }}Handler(server {{ .Name}}Server) *{{ $service.InternalName }}Handler {
+	h := &{{ $service.InternalName }}Handler{
+		mapping: make(map[string]map[string]http.HandlerFunc),
+		server: server,
+	}
+
+	h.mapping = map[string]map[string]http.HandlerFunc{
+		{{- range $path, $methods := $service.Methods }}
+		"{{ $path }}": map[string]http.HandlerFunc{
+			{{- range $method, $handler := $methods }}
+			"{{ $method }}": h.{{ $handler.InternalName }},
+			{{- end}}
+		},
+		{{- end }}
+	}
+
+	return h
+}
+
+{{- range $ignore, $path := $service.Methods }}
+{{- range $ignore, $method := $path }}
+func (h *{{ $service.InternalName }}Handler) {{ $method.InternalName }}(w http.ResponseWriter, r *http.Request) {
+	// TODO: Add more than JSON
+	// TODO: Are there other methods that should not be supported?
+	var req string
+	{{ if ne $method.Method "GET" }}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Unable to parse JSON: %s", err.Error())
+		return
+	}
+	defer r.Body.Close()
+	{{ end}}
+
+	resp, err := h.server.{{ $method.Name }}(r.Context(), req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Unable to Serve: %s", err.Error())
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(resp))
+}
+{{- end }}
+{{- end }}
+
+{{- end }}
 `))

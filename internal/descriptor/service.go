@@ -2,6 +2,7 @@ package descriptor
 
 type Method struct {
 	Name         string
+	InternalName string
 	RequestType  string
 	ResponseType string
 	Path         string
@@ -10,6 +11,8 @@ type Method struct {
 }
 
 type Service struct {
-	Name    string
-	Methods []Method
+	Name         string
+	InternalName string
+
+	Methods map[string]map[string]*Method
 }

@@ -41,6 +41,7 @@ func (g *generator) Generate(targets []*descriptor.SourceFile) ([]*descriptor.Ta
 			return nil, err
 		}
 
+		log.Println(code)
 		formatted, err := format.Source([]byte(code))
 		if err != nil {
 			return nil, fmt.Errorf("error formatting generated code: %v", err)
@@ -58,7 +59,7 @@ func (g *generator) Generate(targets []*descriptor.SourceFile) ([]*descriptor.Ta
 }
 
 func (g *generator) generateFile(file *descriptor.SourceFile) (string, error) {
-	log.Printf("%+v", file.FileDescriptorProto.Options)
+	log.Printf("%+v", file.Services)
 
 	b := new(bytes.Buffer)
 	if err := tmpl.Execute(b, file); err != nil {

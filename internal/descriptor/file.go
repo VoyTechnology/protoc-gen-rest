@@ -10,6 +10,8 @@ type SourceFile struct {
 
 	Package                 string
 	GeneratedFilenamePrefix string
+
+	Services []*Service
 }
 
 type TargetFile struct {

@@ -16,6 +16,26 @@
 
 package main
 
-func main() {
+import (
+	"context"
+	"net/http"
 
+	pb "github.com/voytechnology/protoc-gen-rest/testdata/simple/v1"
+)
+
+func main() {
+	http.Handle("/", pb.NewSimpleServiceHandler(&Server{}))
+	http.ListenAndServe(":8080", nil)
+}
+
+type Server struct {
+	pb.SimpleServiceServer
+}
+
+func (s *Server) Get(ctx context.Context, req string) (string, error) {
+	return "get", nil
+}
+
+func (s *Server) Set(ctx context.Context, req string) (string, error) {
+	return "set", nil
 }
