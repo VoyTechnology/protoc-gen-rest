@@ -18,24 +18,29 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	pb "github.com/voytechnology/protoc-gen-rest/testdata/simple/v1"
+	restpb "github.com/voytechnology/protoc-gen-rest/testdata/simple/v1/simplerest"
 )
 
 func main() {
-	http.Handle("/", pb.NewSimpleServiceHandler(&Server{}))
+	http.Handle("/", restpb.NewSimpleServiceHandler(&Server{}))
 	http.ListenAndServe(":8080", nil)
 }
 
 type Server struct {
-	pb.SimpleServiceServer
+	restpb.SimpleServiceServer
 }
 
-func (s *Server) Get(ctx context.Context, req string) (string, error) {
-	return "get", nil
+func (s *Server) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
+	return &pb.GetResponse{
+		Letter: "get",
+	}, nil
 }
 
-func (s *Server) Set(ctx context.Context, req string) (string, error) {
-	return "set", nil
+func (s *Server) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse, error) {
+	log.Println("Set", req)
+	return &pb.SetResponse{}, nil
 }

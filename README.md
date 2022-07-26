@@ -6,11 +6,14 @@ Create easy to consume REST APIs from protobufs
 
 This project is still in its infancy so nothing is yet actually developed.
 
-- [ ] Server Generated Code
-- [ ] Client Generated Code
-- [ ] Unary RPCs
-- [ ] Server Streaming RPCs
-- [ ] Client Streaming RPCs
+- [ ] Server Generated Code [[#1](https://github.com/VoyTechnology/protoc-gen-rest/issues/1)]
+- [ ] Client Generated Code [[#2](https://github.com/VoyTechnology/protoc-gen-rest/issues/2)]
+- [ ] Streaming RPCs
+- [ ] Accept multiple Content-Types
+  - [ ] `application/json` [[#3](https://github.com/VoyTechnology/protoc-gen-rest/issues/3)]
+  - [ ] `application/grpc-web+proto` [[#6](https://github.com/VoyTechnology/protoc-gen-rest/issues/6)]]
+- [ ] Existing Library Compatibility
+  - [ ] `grpc` [[#7](https://github.com/VoyTechnology/protoc-gen-rest/issues/7)]
 
 ## Usage
 

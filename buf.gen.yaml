@@ -6,3 +6,5 @@ plugins:
       - paths=source_relative
   - name: rest
     out: .
+    opt:
+      - paths=source_relative
