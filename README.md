@@ -6,14 +6,13 @@ Create easy to consume REST APIs from protobufs
 
 This project is still in its infancy so nothing is yet actually developed.
 
-- [ ] Server Generated Code [[#1](https://github.com/VoyTechnology/protoc-gen-rest/issues/1)]
+- [x] Server Generated Code [[#1](https://github.com/VoyTechnology/protoc-gen-rest/issues/1)]
 - [ ] Client Generated Code [[#2](https://github.com/VoyTechnology/protoc-gen-rest/issues/2)]
 - [ ] Streaming RPCs
 - [ ] Accept multiple Content-Types
-  - [ ] `application/json` [[#3](https://github.com/VoyTechnology/protoc-gen-rest/issues/3)]
+  - [x] `application/json` [[#3](https://github.com/VoyTechnology/protoc-gen-rest/issues/3)]
   - [ ] `application/grpc-web+proto` [[#6](https://github.com/VoyTechnology/protoc-gen-rest/issues/6)]]
-- [ ] Existing Library Compatibility
-  - [ ] `grpc` [[#7](https://github.com/VoyTechnology/protoc-gen-rest/issues/7)]
+- [ ] Publish to buf.build registry
 
 ## Usage
 
@@ -29,29 +28,29 @@ It is designed to solve the simple problem of creating REST APIs from protobufs.
 ```protobuf
 syntax = "proto3";
 
-package your.service.v1;
+package examples.texttransform.v1;
 
-option go_package = "github.com/org/repo/proto/your/service/v1;service";
+option go_package = "github.com/voytechnology/protoc-gen-rest/examples/texttransform/v1;texttransform";
 
 import "google/api/annotations.proto";
 
-service CapitalizeService {
+// TextTransformService is an example service used for transforming text.
+service TextTransformService {
     rpc Capitalize(CapitalizeRequest) returns (CapitalizeResponse) {
-        // These are the annotations that are used to generate the REST API.
         option (google.api.http) = {
-            post: "/capitalize"
-            body: "*"
+            post: "/v1/texttransform/capitalize"
         };
     }
 }
 
 message CapitalizeRequest {
-    string message = 1;
+    string text = 1;
 }
 
 message CapitalizeResponse {
-    string message = 1;
+    string text = 1;
 }
+
 ```
 
 ### 2. Generate your REST API
@@ -61,7 +60,7 @@ message CapitalizeResponse {
 ```yaml
 version: v1
 deps:
-- buf.build/googleapis/googleapis
+  - buf.build/googleapis/googleapis
 ```
 
 `buf.gen.yaml`
@@ -69,10 +68,24 @@ deps:
 ```yaml
 version: v1
 plugins:
-    - name: go
-      out: proto
-    - name: protoc-gen-rest
-      out: proto
+  - remote: buf.build/library/plugins/go:v1.27.1-1
+    out: .
+    opt:
+      - paths=source_relative
+  - name: rest
+    out: .
+    opt:
+      - paths=source_relative
+```
+
+> Note: You must install the generator prior to generating the protobuf using
+> `go install github.com/voytechnology/protoc-gen-rest/cmd/protoc-gen-rest`.
+>
+> Once the generator is published to buf.build this will no longer be
+> required and you would be able to use a remote instead.
+
+```sh
+buf generate
 ```
 
 ### 3. Implement your service
@@ -81,32 +94,47 @@ plugins:
 package main
 
 import (
-    pb "github.com/org/repo/proto/your/service/v1"
+    "context"
+    "fmt"
+    "net/http"
+    "os"
+    "strings"
+
+    pb "github.com/voytechnology/protoc-gen-rest/examples/texttransform/v1"
+    rpb "github.com/voytechnology/protoc-gen-rest/examples/texttransform/v1/texttransformrest"
 )
 
-func run() error {
-    h := pb.NewCapitalizeServiceHandler(&server{})
-    http.Handle("/api", h)
+func main() {
+    port := "8080"
+    if p := os.Getenv("PORT"); p != "" {
+        port = p
+    }
 
-    return http.ListenAndServe(":8080", nil)
+    http.Handle("/", rpb.NewTextTransformServiceHandler(&TextTransformServer{}))
+    _ = http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
 
-type server struct {}
+// TextTransformServer implements the TextTransformService
+type TextTransformServer struct{}
 
-// Capitalize is implemented like any other gRPC service.
-func (s *server) Capitalize(
-    ctx context.Context, req *pb.CapitalizeRequest,
-) (*pb.CapitalizeResponse, error) {
+// Capitalize the input text
+func (s *TextTransformServer) Capitalize(
+    ctx context.Context, req *pb.CapitalizeRequest) (*pb.CapitalizeResponse, error) {
+
     return &pb.CapitalizeResponse{
-        Message: strings.ToUpper(req.Message),
+        Text: strings.ToUpper(req.Text),
     }, nil
 }
+```
 
-func main() {
-    if err := run(); err != nil {
-        log.Fatal(err)
-    }
-}
+### 4. Use your newly generated API
+
+Run your service and send a request to the endpoint picked with the
+`google.api.http` option.
+
+```sh
+curl -X POST -d '{"text":"abc"}' localhost:8080/v1/texttransform/capitalize
+{"text": "ABC"}
 ```
 
 ## More Examples
