@@ -16,6 +16,23 @@
       "message": "Testing self approving",
       "revId": "e6d7e14000c3fbddfa17ab4780a462febf1a598c",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "640620ac_2d5d2575",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1020379
+      },
+      "writtenOn": "2022-07-29T23:47:26Z",
+      "side": 1,
+      "message": "We don\u0027t have actions which will verify this commit, so I am not sure how does this apply in this case.",
+      "revId": "e6d7e14000c3fbddfa17ab4780a462febf1a598c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735"
     }
   ]
 }
